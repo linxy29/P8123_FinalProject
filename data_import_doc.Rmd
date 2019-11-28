@@ -1,0 +1,42 @@
+---
+title: "data import document"
+author: "Shu Deng"
+date: "11/28/2019"
+output: html_document
+---
+
+Actual code run locally (due to large file size). This is just a document of what code used. 
+
+```{r}
+brfss018 <- sasxport.get("data/LLCP2018.XPT")
+brfss018 = as.data.frame(brfss018)
+
+vars = tolower(
+       c("x.psu",
+         "x.age.g",
+         "x.state",
+         "x.race",
+         "x.LLCPWT",
+         "x.IMPRACE",
+         "GENHLTH",
+         "HLTHPLN1",
+         "EXERANY2",
+         "SLEPTIM1", # On average, how many hours of sleep do you get in a 24-hour period?
+         "CHCSCNCR", # Skin Cancer
+         "CHCOCNCR", # Any Other Cancer
+         "SEX1", # 1 Male 2 Female
+         "EDUCA",
+         "EMPLOY1",
+         "CHILDREN",
+         "INCOME2",
+         "WEIGHT2",
+         "HEIGHT3",
+         "SMOKE100",
+         "ALCDAY5")
+       )
+
+output_file = brfss018 %>% select(vars)
+fwrite(output_file,"data/test.csv")
+
+```
+

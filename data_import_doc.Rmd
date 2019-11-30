@@ -40,3 +40,8 @@ fwrite(output_file,"data/test.csv")
 
 ```
 
+# 11-30-19
+Change variable SMOKE100 to SMOKDAY2
+change filename to data_ver_2.csv
+
+

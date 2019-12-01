@@ -1,0 +1,92 @@
+---
+title: "shu_explore_1"
+author: "Shu Deng"
+date: "11/30/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(survey)
+library(mice)
+```
+
+```{r}
+raw_df = read_csv("data/data_ver_3.csv")
+```
+
+```{r}
+head(raw_df)
+factor_cols <- c("x.age.g", "x.state", "x.imprace", "genhlth","hlthpln1","educa" ,"sex1","chcocncr")
+raw_df[factor_cols] <- lapply(raw_df[factor_cols], as.factor)  
+
+
+colnames(raw_df)
+# md.pattern(raw_df)
+```
+
+Get subset of data for table 1 
+RACE use x.imprace
+```{r}
+# svy_tbl_1 <-svydesign(id=~x.psu, weights=~x.llcpwt, data=raw_df)
+# 
+# # Raw count & percentage 
+# raw_count = raw_df$x.imprace %>% table() %>% as.data.frame() %>% rename("raw_count" = Freq)
+# raw_pct = raw_df$x.imprace %>% table() %>% prop.table()%>% as.data.frame() %>% rename("raw_pct" = Freq)
+# raw_count_pct = left_join(raw_count,raw_pct, by=".") %>% select(-".")
+# 
+# # weighted count 
+# wt_count = svytotal(~x.imprace, svy_tbl_1,na.rm = TRUE) %>% as.data.frame() %>% rename("wt_count" = total,"wt_count_se" = SE)
+# # weighted percentage
+# wt_mean = svymean( ~ x.imprace, svy_tbl_1, na.rm = TRUE) %>% as.data.frame() %>% rename("wt_mean" = mean, "wt_mean_se" = SE)
+# 
+# frequency_combined = bind_cols(raw_count_pct,wt_count,wt_mean)
+# frequency_combined$raw_pct %>% scales::percent()
+
+```
+
+```{r}
+# Function to get raw and weighted frequency 
+
+
+
+get_freq <- function(raw_data, svy_data, var_name) {
+  # Raw count & percentage
+  raw_count = raw_data[var_name] %>% table() %>% as.data.frame() %>% rename("raw_count" = Freq)
+  raw_pct = raw_data[var_name] %>% table() %>% prop.table() %>% as.data.frame() %>% rename("raw_pct" = Freq)
+  raw_count_pct = left_join(raw_count, raw_pct, by = ".") %>% select(-".")
+  
+  # weighted count
+  wt_count =
+    svytotal(~ get(var_name), svy_data, na.rm = TRUE) %>% as.data.frame() %>% rename("wt_count"=total,"wt_count_se"=SE)
+  # weighted percentage
+  wt_mean = 
+    svymean(~ get(var_name), svy_data, na.rm = TRUE) %>% as.data.frame() %>% rename("wt_mean" = mean, "wt_mean_se" = SE)
+  
+  # Combined result 
+  frequency_combined = bind_cols(raw_count_pct, wt_count, wt_mean)
+  
+  # change to percentage
+  percent_cols <- c("raw_pct", "wt_mean")
+  frequency_combined[percent_cols] =  
+    lapply(frequency_combined[percent_cols], scales::percent)
+  return(frequency_combined)
+}
+
+```
+
+```{r}
+
+svy_tbl_1 <-svydesign(id=~x.psu, weights=~x.llcpwt, data=raw_df)
+freq_race = get_freq(raw_df, svy_tbl_1, "x.imprace")
+freq_age = get_freq(raw_df, svy_tbl_1, "x.age.g")
+freq_sex = get_freq(raw_df, svy_tbl_1, "sex1")
+freq_edu = get_freq(raw_df, svy_tbl_1, "educa")
+freq_genhlth = get_freq(raw_df, svy_tbl_1, "genhlth")
+freq_cancer = get_freq(raw_df, svy_tbl_1, "chcocncr")
+
+
+```
+
+

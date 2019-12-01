@@ -18,6 +18,7 @@ raw_df = read_csv("data/table_1_data.csv")
 
 ```{r}
 head(raw_df)
+colnames(raw_df)
 factor_cols <- c("x.age.g", "x.state", "x.imprace", "genhlth","hlthpln1","educa" ,"sex1","chcocncr", "sleptim1_cat")
 raw_df[factor_cols] <- lapply(raw_df[factor_cols], as.factor)  
 
@@ -88,6 +89,28 @@ freq_cancer = get_freq(raw_df, svy_tbl_1, "chcocncr")
 freq_slepcat = get_freq(raw_df, svy_tbl_1, "sleptim1_cat")
 
 svytotal(~x.imprace, svy_tbl_1,na.rm = TRUE)
+
+```
+
+# mean sleep hours by region 
+```{r}
+svy_tbl_1 <- svydesign(id=~x.psu, weights=~x.llcpwt, data=raw_df)
+svymean(~ sleptim1, svy_tbl_1, na.rm = TRUE) 
+svymean(sleptim1~x.state , svy_tbl_1, na.rm = TRUE) 
+
+# subpopulation analysis 
+
+# sleep by states
+sleep_by_states = svyby(~ sleptim1,~x.state, svy_tbl_1, na.rm = TRUE, svymean)
+sleep_by_states$x.state = rownames(sleep_by_states) %>% as.numeric()
+summary(sleep_by_states$sleptim1)
+
+
+raw_df$chcocncr %>% table()
+# cancer by states
+cancer_by_states = svyby(~chcocncr,~x.state, svy_tbl_1, na.rm = TRUE, svymean)
+cancer_by_states$x.state = rownames(sleep_by_states) %>% as.numeric()
+
 
 ```
 

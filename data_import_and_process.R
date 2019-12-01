@@ -47,7 +47,7 @@ dim(brfss2018_raw[vars_of_interest])
 
 
 # for table 1 
-table_1_df = brfss2018_raw
+table_1_df = brfss2018_raw[vars_of_interest]
 
 # need to categorize sleep hours 
 # table_1_df$sleptim1 %>% table()
@@ -61,8 +61,10 @@ table_1_df =
     sleptim1 < 7  ~"1 Insufficient sleep",
     sleptim1 >= 7 & sleptim1 <= 10 ~"2 Adquate sleep",
     sleptim1 > 10 & sleptim1 <= 24 ~"3 Excessive sleep",
-    TRUE ~ "NA"
+    TRUE ~ NA_character_
   )
  )
 
 table_1_df$sleptim1_cat %>% table()
+# write.csv(table_1_df,"data/table_1_data.csv")
+# saveRDS(table_1_df, file="table_1_df.rds")

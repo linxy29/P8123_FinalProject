@@ -13,12 +13,12 @@ library(mice)
 ```
 
 ```{r}
-raw_df = read_csv("data/data_ver_3.csv")
+raw_df = read_csv("data/table_1_data.csv")
 ```
 
 ```{r}
 head(raw_df)
-factor_cols <- c("x.age.g", "x.state", "x.imprace", "genhlth","hlthpln1","educa" ,"sex1","chcocncr")
+factor_cols <- c("x.age.g", "x.state", "x.imprace", "genhlth","hlthpln1","educa" ,"sex1","chcocncr", "sleptim1_cat")
 raw_df[factor_cols] <- lapply(raw_df[factor_cols], as.factor)  
 
 
@@ -78,14 +78,16 @@ get_freq <- function(raw_data, svy_data, var_name) {
 
 ```{r}
 
-svy_tbl_1 <-svydesign(id=~x.psu, weights=~x.llcpwt, data=raw_df)
+svy_tbl_1 <- svydesign(id=~x.psu, weights=~x.llcpwt, data=raw_df)
 freq_race = get_freq(raw_df, svy_tbl_1, "x.imprace")
 freq_age = get_freq(raw_df, svy_tbl_1, "x.age.g")
 freq_sex = get_freq(raw_df, svy_tbl_1, "sex1")
 freq_edu = get_freq(raw_df, svy_tbl_1, "educa")
 freq_genhlth = get_freq(raw_df, svy_tbl_1, "genhlth")
 freq_cancer = get_freq(raw_df, svy_tbl_1, "chcocncr")
+freq_slepcat = get_freq(raw_df, svy_tbl_1, "sleptim1_cat")
 
+svytotal(~x.imprace, svy_tbl_1,na.rm = TRUE)
 
 ```
 

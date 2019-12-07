@@ -27,7 +27,7 @@ brfss2018_map$state %>% table()
 # fip_state_ref$state_name = tolower(fip_state_ref$state_name)
 # write_csv(fip_state_ref,"data/state_fip_code.csv")
 
-# load subpopulation analysis from shu_data_explore file.
+#####***** load subpopulation analysis from shu_data_explore file.
 fip_state_ref = read.csv("data/state_fip_code.csv")
 sleep_by_states$x.state = as.numeric(sleep_by_states$x.state)
 state_sleep_data = left_join(sleep_by_states[1:2],fip_state_ref,  by = c("x.state" = "state_code"))

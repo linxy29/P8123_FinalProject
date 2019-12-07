@@ -38,6 +38,24 @@ vars_of_interest = tolower(c(
 dim(brfss2018_raw[vars_of_interest])
 # nrow() = 437436 
 
+processed_df= brfss2018_raw[vars_of_interest]
+processed_df %>% 
+  mutate( alcday5_mod  = 
+  case_when(
+    alcday5 <= 300 & alcday5 >= 200 ~  as.numeric(alcday5-200),
+    alcday5 <= 200 & alcday5 >= 100 ~ as.numeric((alcday5-100) *4.0),
+    alcday5 == 888 ~ as.numeric(0),
+    TRUE ~ as.numeric(NA)
+  )
+  )
+
+
+
+# saveRDS(processed_df, file="data/shared_df_1.rds")
+
+
+
+
 
 # missing values 
 # skimr::skim(brfss2018_raw[vars_of_interest])

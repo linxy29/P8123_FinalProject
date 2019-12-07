@@ -29,7 +29,8 @@ vars_of_interest = tolower(c(
   "WEIGHT2",
   "HEIGHT3",
   "SMOKE100",
-  "ALCDAY5"))
+  "ALCDAY5",
+  "CNCRTYP1"))
 
 
 # dimemsion of data
@@ -93,7 +94,7 @@ skimr::skim(processed_df)
 # tbl2_df[factor_cols] <- lapply(tbl2_df[factor_cols], as.factor)  
 # tbl2_df$chcocncr = relevel(tbl2_df$chcocncr, ref = 2)
 
-# save files
+# save
 # saveRDS(processed_df, file="data/primary_df_1.rds")
 
 

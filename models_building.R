@@ -82,7 +82,7 @@ plot_df_1 =
         vars  == "x.impraceNon-Hispanic, Black"  ~"Non-Hispanic, Black",
         vars  == "x.impraceNon-Hispanic, Other"  ~"Non-Hispanic, Other",
         vars  == "x.impraceNon-Hispanic, White"  ~"Non-Hispanic, White",
-        vars  == "sleptim1_cat2 Adquate sleep"  ~"Sleep (Adquate)",
+        vars  == "sleptim1_cat2 Adquate sleep"  ~"Sleep (Adequate)",
         vars  == "sleptim1_cat3 Excessive sleep"  ~"Sleep (Excessive)",
         vars  == "alcday5_mod"  ~"# of drinks",
         vars  == "smoke_modyes"  ~"Smoke Status",
@@ -115,7 +115,8 @@ ggplot(subset(plot_df_1, vars %in% c("age_l25-34","age_l35-44", "age_l45-54", "a
   geom_errorbar(mapping= aes(x=vars_rename, ymin=lower, ymax=upper)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
   geom_hline(yintercept=1, linetype="dashed", color = "red")  +
-  coord_flip()
+  coord_flip() +
+  xlab("Reference: Age (18-25)")
 
 # Race 
 ggplot(subset(plot_df_1, vars %in% c("x.impraceNon-Hispanic, Black","x.impraceNon-Hispanic, Other", "x.impraceNon-Hispanic, White"))) +
@@ -123,10 +124,20 @@ ggplot(subset(plot_df_1, vars %in% c("x.impraceNon-Hispanic, Black","x.impraceNo
   geom_errorbar(mapping= aes(x=vars_rename, ymin=lower, ymax=upper)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
   geom_hline(yintercept=1, linetype="dashed", color = "red")  +
-  coord_flip()
+  coord_flip() +
+  xlab("Reference: Hispanic")
 
-# not age 
-not_age = subset(plot_df_1, vars %notin% c("(Intercept)","age_l25-34","age_l35-44", "age_l45-54", "age_l55-64", "age_l65+","x.impraceNon-Hispanic, Black","x.impraceNon-Hispanic, Other", "x.impraceNon-Hispanic, White")) 
+# Sleep
+ggplot(subset(plot_df_1, vars %in% c("sleptim1_cat2 Adquate sleep","sleptim1_cat3 Excessive sleep"))) +
+  geom_point(aes(x=vars_rename,y = OR)) +
+  geom_errorbar(mapping= aes(x=vars_rename, ymin=lower, ymax=upper)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
+  geom_hline(yintercept=1, linetype="dashed", color = "red")  +
+  coord_flip() +
+  xlab("Reference: Inadequate Sleep (< 7 Hours)")
+
+# others 
+not_age = subset(plot_df_1, vars %notin% c("(Intercept)","age_l25-34","age_l35-44", "age_l45-54", "age_l55-64", "age_l65+","x.impraceNon-Hispanic, Black","x.impraceNon-Hispanic, Other", "x.impraceNon-Hispanic, White","sleptim1_cat2 Adquate sleep","sleptim1_cat3 Excessive sleep")) 
 not_age$vars_rename = factor(not_age$vars_rename, levels = not_age$vars_rename[order(not_age$OR)])
 
 ggplot(not_age) +
@@ -134,9 +145,18 @@ ggplot(not_age) +
   geom_errorbar(mapping= aes(x=vars_rename, ymin=lower, ymax=upper)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
   geom_hline(yintercept=1, linetype="dashed", color = "red")  +
-  coord_flip()
+  coord_flip() +
+  xlab("")
 
+# Drinks 
 
+ggplot(subset(plot_df_1, vars %in% c("alcday5_mod"))) +
+  geom_point(aes(x=vars_rename,y = OR)) +
+  geom_errorbar(mapping= aes(x=vars_rename, ymin=lower, ymax=upper)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
+  geom_hline(yintercept=1, linetype="dashed", color = "red")  +
+  coord_flip() +
+  ylim(0.99,1.01)
 
 
 ggplot(subset(plot_df_1, vars %in% c("sex1Male","x.impraceNon-Hispanic, Black", "x.impraceNon-Hispanic, Other-54", "x.impraceNon-Hispanic, White"))) +
@@ -152,7 +172,7 @@ ggplot(subset(plot_df_1, vars %in% c("alcday5_mod","smoke_modyes", "health_catye
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
   geom_hline(yintercept=1, linetype="dashed", color = "red")
 
-ggplot(subset(plot_df_1, vars %in% c("alcday5_mod","smoke_modyes", "exercise_catyes"))) +
+ggplot(subset(plot_df_1, vars %in% c("alcday5_mod", "exercise_catyes"))) +
   geom_point(aes(x=vars,y = OR)) +
   geom_errorbar(mapping= aes(x=vars, ymin=lower, ymax=upper)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 

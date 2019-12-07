@@ -1,0 +1,75 @@
+---
+title: "Chronic Health Conditions, Tobacco, Alcohol"
+author: "Xinyi Lin"
+date: "11/29/2019"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+raw_subset = read.csv("./data/data_ver_3.csv")
+```
+
+## Subset
+
+new variable: cancer
+
+dependent variable: chcscncr, chcocncr
+
+criterion: cancer = "Yes" if chcscncr==1 or chcocncr==1, cancer = "No" if chcscncr==2 and chcocncr==2, else cancer = "Don't Know(DK)".
+
+```{r}
+subset = raw_subset %>% 
+  mutate(cancer = ifelse(chcscncr==1 | chcocncr==1, "Yes", "DK"),
+         cancer = ifelse(chcscncr==2 & chcocncr==2, "No", cancer)) %>% 
+  mutate(smokfreq = ifelse(smokday2==1, "EveryDay", "DK"),
+         smokfreq = ifelse(smokday2==2, "SomeDays", smokfreq),
+         smokfreq = ifelse(smokday2==3, "No", smokfreq)) %>% 
+  select(cancer, smokfreq, avedrnk2, x.llcpwt) %>%
+  na.omit()
+```
+
+## Results
+
+### smokfreq
+
+```{r}
+subset %>% 
+  group_by(cancer, smokfreq) %>% 
+  summarise(total_weight = sum(x.llcpwt)) %>% 
+  ggplot(aes(x = cancer, fill = smokfreq, y = total_weight)) +
+  geom_bar(stat = "identity", position = "dodge")
+```
+
+```{r}
+subset %>% 
+  group_by(cancer, smokfreq) %>% 
+  summarise(total_weight = sum(x.llcpwt)) %>% 
+  spread(key = smokfreq, value = total_weight) %>% 
+  mutate(DK = ifelse(is.na(DK), 0, DK)) %>% 
+  mutate(DK_prc = DK/(DK+EveryDay+No),
+         EveryDay_prc = EveryDay/(DK+EveryDay+No),
+         No_prc = No/(DK+EveryDay+No)) %>% 
+  gather(key = "smokfreq", value = "percentage", DK_prc:No_prc) %>% 
+  ggplot(aes(x = cancer, fill = smokfreq, y = percentage)) +
+  geom_bar(stat = "identity", position = "dodge")
+```
+
+### avedrnk2
+
+```{r}
+library(ENmisc)
+wtd.boxplot(avedrnk2~cancer, weights = subset$x.llcpwt, data = subset)
+
+drnk_subset = subset[which(subset$avedrnk2<=20),]
+wtd.boxplot(avedrnk2~cancer, weights = drnk_subset$x.llcpwt, data = drnk_subset)
+```
+
+```{r}
+
+```
+

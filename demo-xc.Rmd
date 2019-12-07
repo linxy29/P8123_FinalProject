@@ -1,0 +1,231 @@
+---
+title: "xc2474 demo"
+author: "xc2474 Xinlei Chen"
+date: "12/1/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(patchwork)
+data = read.csv("./data/data_ver_3.csv")
+```
+
+```{r subset demo data}
+data_demo = data %>%
+  select(x.age.g, sex1, x.imprace, educa, employ1, children, income2, weight2, height3, chcocncr) %>%
+  drop_na() %>%
+  mutate(sex=as.factor(sex1),
+         race = as.factor(x.imprace),
+         education = as.factor(educa),
+         employment = as.factor(employ1),
+         children = children,
+         income = as.factor(income2),
+         cancer=as.factor(chcocncr),
+         weight = weight2,
+         height = height3,
+         age = as.factor(x.age.g)
+         ) %>%
+  select(sex, age, race, education, employment, children, income, weight, height, cancer)
+```
+
+```{r}
+summary(data_demo)
+str(data_demo)
+```
+
+
+```{r}
+data_demo %>%
+  filter(cancer!=7&cancer!=9) %>%
+  ggplot(aes(x=age, fill=cancer)) +
+  geom_bar() +
+  labs(title = "Cancer Status by Age") +
+  xlab("Age") + 
+  ylab("Frequency") +
+  scale_x_discrete(labels=c("1"="18-24", "2"="25-34", "3"="35-44", "4"="45-54", "5"="55-65", "6"="65+")) +
+  theme_bw() +
+  coord_flip() +
+  scale_fill_discrete(name="Cancer Status",
+                         breaks=c("1", "2", "7", "9"),
+                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+  theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.x = element_text(size=16, face="bold"),
+        axis.title.y = element_text(size=16, face="bold")) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.title=element_text(size=12, face="bold"), 
+        legend.text=element_text(size=12)) +
+  theme(legend.position = c(0.9, 0.1))
+ggsave("./plot/age.jpg", width=10, height=10)
+```
+
+
+
+```{r}
+data_demo %>%
+  filter(cancer!=7&cancer!=9) %>%
+  filter(sex!=7&sex!=9) %>%
+  ggplot(aes(x=sex, fill=cancer)) +
+  geom_bar() +
+  labs(title = "Cancer Status by Sex") +
+  xlab("Sex") + 
+  ylab("Frequency") +
+  scale_x_discrete(labels=c("1"="Male", "2"="Female", "7"="Don't know / Not sure", "9"="Refused")) +
+  theme_bw() +
+  coord_flip() +
+  scale_fill_discrete(name="Cancer Status",
+                         breaks=c("1", "2", "7", "9"),
+                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+  theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.x = element_text(size=16, face="bold"),
+        axis.title.y = element_text(size=16, face="bold")) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.title=element_text(size=12, face="bold"), 
+        legend.text=element_text(size=12)) +
+  theme(legend.position = c(0.9, 0.1))
+ggsave("./plot/sex.jpg", width=10, height=10)
+```
+
+
+
+
+```{r}
+data_demo %>%
+  filter(cancer!=7&cancer!=9) %>%
+  ggplot(aes(x=race, fill=cancer)) +
+  geom_bar() +
+  labs(title = "Cancer Status by Race") +
+  xlab("Race") + 
+  ylab("Frequency") +
+  scale_x_discrete(labels=c("1"="White, Non-Hispanic", "2"="Black, Non-Hispanic", "3"="Asian, Non-Hispanic", "4"="American Indian/Alaskan Native, Non-Hispanic", "5"="Hispanic", "6"="Other race, Non-Hispanic")) +
+  theme_bw() +
+  coord_flip() +
+  scale_fill_discrete(name="Cancer Status",
+                         breaks=c("1", "2", "7", "9"),
+                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+  theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.x = element_text(size=16, face="bold"),
+        axis.title.y = element_text(size=16, face="bold")) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.title=element_text(size=12, face="bold"), 
+        legend.text=element_text(size=12)) +
+  theme(legend.position = c(0.8, 0.9))
+ggsave("./plot/race.jpg", width=10, height=10)
+```
+
+```{r}
+data_demo %>%
+  filter(education!=9) %>%
+  filter(cancer!=7&cancer!=9) %>%
+  ggplot(aes(x=education, fill=cancer)) +
+  geom_bar() +
+  labs(title = "Cancer Status by Education") +
+  xlab("Education") + 
+  ylab("Frequency") +
+  scale_x_discrete(labels=c("1"="Never attended school or only attended kindergarten", "2"="Grades 1 through 8 (Elementary)", "3"="Grades 9 through 11 (Some high school)", "4"="Grade 12 or GED (High school graduate)", "5"="College 1 year to 3 years (Some college or technical school)", "6"="College 4 years or more (College graduate)", "9"="Refused")) +
+  theme_bw() +
+  coord_flip() +
+  scale_fill_discrete(name="Cancer Status",
+                         breaks=c("1", "2", "7", "9"),
+                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+  theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.x = element_text(size=16, face="bold"),
+        axis.title.y = element_text(size=16, face="bold")) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.title=element_text(size=12, face="bold"), 
+        legend.text=element_text(size=12)) +
+  theme(legend.position = c(0.85, 0.1))
+ggsave("./plot/education.jpg", width=10, height=10)
+```
+
+
+```{r}
+data_demo %>%
+  filter(employment!=9) %>%
+  filter(cancer!=7&cancer!=9) %>%
+  ggplot(aes(x=employment, fill=cancer)) +
+  geom_bar() +
+  labs(title = "Cancer Status by Employment") +
+  xlab("Employment") + 
+  ylab("Frequency") +
+  scale_x_discrete(labels=c("1"="Employed for wages", "2"="Self-employed", "3"="Out of work for 1 year or more", "4"="Out of work for less than 1 year", "5"="A Homemaker", "6"="A Student", "7"="Retired", "8"="Unable to work", "9"="Refused")) +
+  theme_bw() +
+  coord_flip() +
+  scale_fill_discrete(name="Cancer Status",
+                         breaks=c("1", "2", "7", "9"),
+                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+  theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.x = element_text(size=16, face="bold"),
+        axis.title.y = element_text(size=16, face="bold")) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.title=element_text(size=12, face="bold"), 
+        legend.text=element_text(size=12)) +
+  theme(legend.position = c(0.9, 0.9))
+ggsave("./plot/employment.jpg", width=10, height=10)
+```
+
+
+```{r}
+labels <- c("1"="Yes", "2"="No", "7"="Don't know / Not sure", "9"="Not asked or Missing")
+data_demo$children[data_demo$children==88]<-0
+
+data_demo %>%
+  filter(children!=99) %>%
+  filter(cancer!=7&cancer!=9) %>%
+  ggplot(aes(x=children)) +
+  geom_histogram() +
+  facet_grid(~cancer, labeller=labeller(cancer=labels)) +
+  labs(title = "Distribution of the Number of Children by Cancer Status") +
+  xlab("the Number of Children") + 
+  ylab("Frequency") +
+  theme_bw() +
+  theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.x = element_text(size=16, face="bold"),
+        axis.title.y = element_text(size=16, face="bold")) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.title=element_text(size=12, face="bold"), 
+        legend.text=element_text(size=12)) +
+  theme(legend.position = c(0.9, 0.9))
+ggsave("./plot/children.jpg", width=20, height=10)
+```
+
+
+
+```{r}
+data_demo_recodeincome = data_demo %>%
+  filter(income!=77&income!=99) 
+
+data_demo_recodeincome$income=ifelse(as.numeric(data_demo_recodeincome$income)<=4, "Less than $25,000", "Greater than $25,000")
+
+data_demo_recodeincome%>%
+  filter(cancer!=7&cancer!=9) %>%
+  ggplot(aes(x=income, fill=cancer)) +
+  geom_bar() +
+  labs(title = "Cancer Status by Income") +
+  xlab("Income") + 
+  ylab("Frequency") +
+  theme_bw() +
+  coord_flip() +
+  scale_fill_discrete(name="Cancer Status",
+                         breaks=c("1", "2", "7", "9"),
+                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+  theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.x = element_text(size=16, face="bold"),
+        axis.title.y = element_text(size=16, face="bold")) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.title=element_text(size=12, face="bold"), 
+        legend.text=element_text(size=12)) +
+  theme(legend.position = c(0.9, 0.9))
+ggsave("./plot/income.jpg", width=10, height=10)
+```
+
+
+

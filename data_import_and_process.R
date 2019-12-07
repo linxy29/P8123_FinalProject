@@ -29,29 +29,72 @@ vars_of_interest = tolower(c(
   "WEIGHT2",
   "HEIGHT3",
   "SMOKE100",
-  "SMOKDAY2",
-  "ALCDAY5",
-  "AVEDRNK2"))
+  "ALCDAY5"))
 
 
 # dimemsion of data
 dim(brfss2018_raw[vars_of_interest])
 # nrow() = 437436 
 
-processed_df= brfss2018_raw[vars_of_interest]
-processed_df %>% 
+processed_df = brfss2018_raw[vars_of_interest]
+processed_df = processed_df %>% 
   mutate( alcday5_mod  = 
   case_when(
     alcday5 <= 300 & alcday5 >= 200 ~  as.numeric(alcday5-200),
     alcday5 <= 200 & alcday5 >= 100 ~ as.numeric((alcday5-100) *4.0),
     alcday5 == 888 ~ as.numeric(0),
     TRUE ~ as.numeric(NA)
+    )
   )
+
+processed_df = 
+  processed_df %>% 
+mutate(cancer = ifelse(chcscncr==1 | chcocncr==1, "Yes", "DK"),
+       cancer = ifelse(chcscncr==2 & chcocncr==2, "No", cancer)) %>% 
+mutate(age_l = ifelse(x.age.g==1, "18-24", "65+"),
+       age_l = ifelse(x.age.g==2, "25-34",age_l),
+       age_l = ifelse(x.age.g==3, "35-44",age_l),
+       age_l = ifelse(x.age.g==4, "45-54", age_l),
+       age_l = ifelse(x.age.g==5, "55-64",age_l)) %>% 
+  mutate(
+    sleptim1_cat = 
+      case_when(
+        sleptim1 < 7  ~"1 Insufficient sleep",
+        sleptim1 >= 7 & sleptim1 <= 10 ~"2 Adquate sleep",
+        sleptim1 > 10 & sleptim1 <= 24 ~"3 Excessive sleep",
+        TRUE ~ NA_character_
+      ) ,
+    sex1 = 
+      case_when(
+        sex1 == 1  ~"Male",
+        sex1 == 2 ~"Female",
+        TRUE ~ NA_character_
+      ),
+    x.imprace = 
+      case_when(
+        x.imprace == 1  ~"Non-Hispanic, White",
+        x.imprace == 2  ~"Non-Hispanic, Black",
+        x.imprace == 5  ~"Hispanic",
+        TRUE ~ "Non-Hispanic, Other"
+      )
   )
 
+fip_state_ref = read.csv("data/state_fip_code.csv")
+processed_df$x.state = as.numeric(processed_df$x.state)
+processed_df = left_join(processed_df, fip_state_ref,  by = c("x.state" = "state_code"))
 
+# filter NA 
+processed_df = filter(processed_df, cancer != "DK" )
+# removed 1953 samples :  0.0044%
+skimr::skim(processed_df)
 
-# saveRDS(processed_df, file="data/shared_df_1.rds")
+# recode factor 
+# factor_cols <- c("age_l","cancer","sex1", "x.state", "x.imprace", "genhlth","hlthpln1","educa" ,"chcocncr", "sleptim1_cat")
+# tbl2_df[factor_cols] <- lapply(tbl2_df[factor_cols], as.factor)  
+# tbl2_df$chcocncr = relevel(tbl2_df$chcocncr, ref = 2)
+
+# save files
+# saveRDS(processed_df, file="data/primary_df_1.rds")
 
 
 

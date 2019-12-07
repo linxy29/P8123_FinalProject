@@ -14,7 +14,7 @@ data = read.csv("./data/data_ver_3.csv")
 
 ```{r subset demo data}
 data_demo = data %>%
-  select(x.age.g, sex1, x.imprace, educa, employ1, children, income2, weight2, height3, chcocncr) %>%
+  select(x.age.g, sex1, x.imprace, educa, employ1, children, income2, weight2, height3, chcscncr, chcocncr) %>%
   drop_na() %>%
   mutate(sex=as.factor(sex1),
          race = as.factor(x.imprace),
@@ -22,12 +22,31 @@ data_demo = data %>%
          employment = as.factor(employ1),
          children = children,
          income = as.factor(income2),
-         cancer=as.factor(chcocncr),
+         cancer1=chcscncr,
+         cancer2=chcocncr,
          weight = weight2,
          height = height3,
-         age = as.factor(x.age.g)
+         age = as.factor(x.age.g),
+         cancer = NA
          ) %>%
-  select(sex, age, race, education, employment, children, income, weight, height, cancer)
+  select(sex, age, race, education, employment, children, income, weight, height, cancer1, cancer2, cancer)
+
+# if cancer=4,9,11 meaning no cancer
+# if cancer=2,3,8,10 cancer
+
+for (i in 1:nrow(data_demo)){
+  if (data_demo$cancer1[i]==1 | data_demo$cancer2[i]==1){
+    data_demo$cancer[i]="Cancer"
+  } else if (data_demo$cancer1[i]==2 & data_demo$cancer2[i]==2){
+    data_demo$cancer[i]="No Cancer"
+  } else {data_demo$cancer[i]="No Read"}
+}
+
+data_demo = data_demo %>%
+  mutate(cancer=as.factor(cancer))
+
+write_csv(data_demo, "./data/data_demo.csv")
+data_demo=read_csv("./data/data_demo.csv")
 ```
 
 ```{r}
@@ -38,18 +57,18 @@ str(data_demo)
 
 ```{r}
 data_demo %>%
-  filter(cancer!=7&cancer!=9) %>%
-  ggplot(aes(x=age, fill=cancer)) +
-  geom_bar() +
+  filter(cancer1!=9 | cancer2!=9) %>%
+  ggplot(aes(x=cancer, fill=as.factor(age))) +
+  geom_bar(position="fill") +
   labs(title = "Cancer Status by Age") +
-  xlab("Age") + 
-  ylab("Frequency") +
+  xlab("Cancer Status") + 
+  ylab("Proportion") +
   scale_x_discrete(labels=c("1"="18-24", "2"="25-34", "3"="35-44", "4"="45-54", "5"="55-65", "6"="65+")) +
   theme_bw() +
   coord_flip() +
-  scale_fill_discrete(name="Cancer Status",
-                         breaks=c("1", "2", "7", "9"),
-                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+  scale_fill_discrete(name="Age Group",
+                         breaks=c("1", "2", "3", "4", "5", "6"),
+                         labels=c("18-24", "25-34", "35-44", "45-54", "55-65", "65+")) +
   theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.x = element_text(size=16, face="bold"),
         axis.title.y = element_text(size=16, face="bold")) +
@@ -57,7 +76,7 @@ data_demo %>%
         axis.text.y = element_text(size=12),
         legend.title=element_text(size=12, face="bold"), 
         legend.text=element_text(size=12)) +
-  theme(legend.position = c(0.9, 0.1))
+  theme(legend.position = "bottom")
 ggsave("./plot/age.jpg", width=10, height=10)
 ```
 
@@ -65,10 +84,10 @@ ggsave("./plot/age.jpg", width=10, height=10)
 
 ```{r}
 data_demo %>%
-  filter(cancer!=7&cancer!=9) %>%
+  filter(cancer1!=9 | cancer2!=9) %>%
   filter(sex!=7&sex!=9) %>%
   ggplot(aes(x=sex, fill=cancer)) +
-  geom_bar() +
+  geom_bar(position="fill") +
   labs(title = "Cancer Status by Sex") +
   xlab("Sex") + 
   ylab("Frequency") +
@@ -76,16 +95,15 @@ data_demo %>%
   theme_bw() +
   coord_flip() +
   scale_fill_discrete(name="Cancer Status",
-                         breaks=c("1", "2", "7", "9"),
-                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+                         breaks=c("Cancer", "No Cancer", "No Read"),
+                         labels=c("Yes", "No", "DK")) +
   theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.x = element_text(size=16, face="bold"),
         axis.title.y = element_text(size=16, face="bold")) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.title=element_text(size=12, face="bold"), 
-        legend.text=element_text(size=12)) +
-  theme(legend.position = c(0.9, 0.1))
+        legend.text=element_text(size=12))
 ggsave("./plot/sex.jpg", width=10, height=10)
 ```
 
@@ -94,26 +112,25 @@ ggsave("./plot/sex.jpg", width=10, height=10)
 
 ```{r}
 data_demo %>%
-  filter(cancer!=7&cancer!=9) %>%
+  filter(cancer1!=9 | cancer2!=9) %>%
   ggplot(aes(x=race, fill=cancer)) +
-  geom_bar() +
+  geom_bar(position="fill") +
   labs(title = "Cancer Status by Race") +
   xlab("Race") + 
-  ylab("Frequency") +
+  ylab("Proportion") +
   scale_x_discrete(labels=c("1"="White, Non-Hispanic", "2"="Black, Non-Hispanic", "3"="Asian, Non-Hispanic", "4"="American Indian/Alaskan Native, Non-Hispanic", "5"="Hispanic", "6"="Other race, Non-Hispanic")) +
   theme_bw() +
   coord_flip() +
   scale_fill_discrete(name="Cancer Status",
-                         breaks=c("1", "2", "7", "9"),
-                         labels=c("Yes", "No", "Don't know / Not sure", "Not asked or Missing")) +
+                         breaks=c("Cancer", "No Cancer", "No read"),
+                         labels=c("Yes", "No", "DK")) +
   theme(plot.title = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.x = element_text(size=16, face="bold"),
         axis.title.y = element_text(size=16, face="bold")) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.title=element_text(size=12, face="bold"), 
-        legend.text=element_text(size=12)) +
-  theme(legend.position = c(0.8, 0.9))
+        legend.text=element_text(size=12)) 
 ggsave("./plot/race.jpg", width=10, height=10)
 ```
 
@@ -122,10 +139,10 @@ data_demo %>%
   filter(education!=9) %>%
   filter(cancer!=7&cancer!=9) %>%
   ggplot(aes(x=education, fill=cancer)) +
-  geom_bar() +
+  geom_bar(position="fill") +
   labs(title = "Cancer Status by Education") +
   xlab("Education") + 
-  ylab("Frequency") +
+  ylab("Proportion") +
   scale_x_discrete(labels=c("1"="Never attended school or only attended kindergarten", "2"="Grades 1 through 8 (Elementary)", "3"="Grades 9 through 11 (Some high school)", "4"="Grade 12 or GED (High school graduate)", "5"="College 1 year to 3 years (Some college or technical school)", "6"="College 4 years or more (College graduate)", "9"="Refused")) +
   theme_bw() +
   coord_flip() +
@@ -138,8 +155,7 @@ data_demo %>%
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.title=element_text(size=12, face="bold"), 
-        legend.text=element_text(size=12)) +
-  theme(legend.position = c(0.85, 0.1))
+        legend.text=element_text(size=12)) 
 ggsave("./plot/education.jpg", width=10, height=10)
 ```
 
@@ -149,10 +165,10 @@ data_demo %>%
   filter(employment!=9) %>%
   filter(cancer!=7&cancer!=9) %>%
   ggplot(aes(x=employment, fill=cancer)) +
-  geom_bar() +
+  geom_bar(position = "fill") +
   labs(title = "Cancer Status by Employment") +
   xlab("Employment") + 
-  ylab("Frequency") +
+  ylab("Proportion") +
   scale_x_discrete(labels=c("1"="Employed for wages", "2"="Self-employed", "3"="Out of work for 1 year or more", "4"="Out of work for less than 1 year", "5"="A Homemaker", "6"="A Student", "7"="Retired", "8"="Unable to work", "9"="Refused")) +
   theme_bw() +
   coord_flip() +

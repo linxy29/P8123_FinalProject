@@ -162,8 +162,8 @@ ggplot(subset(plot_df_1, vars %in% c("alcday5_mod"))) +
 ggplot(subset(plot_df_1, vars %in% c("sex1Male","x.impraceNon-Hispanic, Black", "x.impraceNon-Hispanic, Other-54", "x.impraceNon-Hispanic, White"))) +
   geom_point(aes(x=vars,y = OR)) +
   geom_errorbar(mapping= aes(x=vars, ymin=lower, ymax=upper)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
-  geom_hline(yintercept=1, linetype="dashed", color = "red")
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  geom_hline(yintercept=1, linetype = "dashed", color = "red")
 
 
 ggplot(subset(plot_df_1, vars %in% c("alcday5_mod","smoke_modyes", "health_catyes", "exercise_catyes"))) +

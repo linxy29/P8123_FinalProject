@@ -22,7 +22,7 @@ raw_df = raw_df %>% mutate(
       TRUE ~ NA_character_
     ),
   
-  health_cat = 
+  health_cover = 
     case_when(
       hlthpln1  == 1  ~"yes",
       hlthpln1  == 2  ~"no",
@@ -93,9 +93,9 @@ plot_df_1 =
         vars  == "x.impraceNon-Hispanic, White"  ~ "Non-Hispanic, White",
         vars  == "sleptim1_cat2 Adquate sleep"   ~ "Sleep (Adequate)",
         vars  == "sleptim1_cat3 Excessive sleep" ~ "Sleep (Excessive)",
-        vars  == "alcday5_mod"      ~ "# of drinks",
+        vars  == "alcday5_mod"      ~ "Days of drinks",
         vars  == "smoke_modyes"     ~ "Smoke Status",
-        vars  == "health_catyes"    ~ "Health Status",
+        vars  == "health_catyes"    ~ "Health Coverage",
         vars  == "exercise_catyes"  ~ "Exercise",
         TRUE ~ NA_character_
       )

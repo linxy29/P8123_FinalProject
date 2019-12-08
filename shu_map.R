@@ -53,6 +53,7 @@ summary(sleep_by_states$sleptim1)
 
 
 
+
 fip_state_ref = read.csv("data/state_fip_code.csv")
 fip_state_ref_2 = read.csv("data/state_fip_code_2.csv") # with state Abbrv
 sleep_by_states$x.state = as.numeric(sleep_by_states$x.state)

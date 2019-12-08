@@ -57,7 +57,7 @@ mutate(age_l = ifelse(x.age.g==1, "18-24", "65+"),
        age_l = ifelse(x.age.g==3, "35-44",age_l),
        age_l = ifelse(x.age.g==4, "45-54", age_l),
        age_l = ifelse(x.age.g==5, "55-64",age_l)) %>% 
-  mutate(
+mutate(
     sleptim1_cat = 
       case_when(
         sleptim1 < 7  ~"1 Insufficient sleep",
@@ -88,7 +88,7 @@ processed_df = left_join(processed_df, fip_state_ref,  by = c("x.state" = "state
 processed_df = filter(processed_df, cancer != "DK" )
 # removed 1953 samples :  0.0044%
 skimr::skim(processed_df)
-
+nrow(processed_df)
 # recode factor 
 # factor_cols <- c("age_l","cancer","sex1", "x.state", "x.imprace", "genhlth","hlthpln1","educa" ,"chcocncr", "sleptim1_cat")
 # tbl2_df[factor_cols] <- lapply(tbl2_df[factor_cols], as.factor)  

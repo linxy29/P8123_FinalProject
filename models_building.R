@@ -27,11 +27,19 @@ raw_df = raw_df %>% mutate(
       hlthpln1  == 1  ~"yes",
       hlthpln1  == 2  ~"no",
       TRUE ~ NA_character_
+    ),
+  cencer_type = 
+    case_when(
+      cncrtyp1 == 1  ~"Non-Hispanic, White",
+      cncrtyp1 == 2  ~"Non-Hispanic, Black",
+      cncrtyp1 == 5  ~"Hispanic",
+      TRUE ~ "Non-Hispanic, Other"
     )
 )
 raw_df$cancer = as.factor(raw_df$cancer)
 raw_df$educa = as.factor(raw_df$educa)
-raw_df$health_cat 
+
+raw_df$cncrtyp1 %>% table()
 
 # raw_df$alcday5_mod %>% hist()
 # raw_df$educa %>% table()
@@ -41,8 +49,8 @@ raw_df$health_cat
 colnames(raw_df)
 
 
-svy_obj_1 <- svydesign(id=~x.psu, weights= ~x.llcpwt, data=raw_df)
-svy_obj_1 <- svydesign(id=~x.psu, weights= ~x.llcpwt,strata = ~x.state , data=raw_df,nest=TRUE)
+svy_obj_1 <- svydesign(id=~x.psu, weights = ~x.llcpwt, data = raw_df)
+svy_obj_2 <- svydesign(id=~x.psu, weights= ~x.llcpwt, strata = ~x.state , data=raw_df, nest=TRUE)
 
 glm_model_1 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + educa + alcday5_mod + smoke_mod, design = svy_obj_1, family = "binomial") 
 glm_model_1 %>% summary()
@@ -66,28 +74,29 @@ plot_df_1 = as.data.frame(plot_df_1)
 plot_df_1$estimate = (coefficients(glm_model_3) %>% exp()) %>% as.vector()
 
 plot_df_1$vars = rownames(plot_df_1)
-colnames(plot_df_1) = c("lower","upper","OR","vars")
+colnames(plot_df_1) = c("lower", "upper", "OR", "vars")
+
 plot_df_1 = 
   plot_df_1 %>% 
   mutate(
     vars_rename = 
       case_when(
-        vars  == "(Intercept)"  ~"Inter",
-        vars  == "age_l25-34"  ~"Age (25-34)",
-        vars  == "age_l35-44"  ~"Age (35-44)",
-        vars  == "age_l45-54"  ~"Age (45-54)",
-        vars  == "age_l55-64"  ~"Age (55-64)",
-        vars  == "age_l65+"  ~"Age (65+)",
-        vars  == "sex1Male"  ~"Sex (Male)",
-        vars  == "x.impraceNon-Hispanic, Black"  ~"Non-Hispanic, Black",
-        vars  == "x.impraceNon-Hispanic, Other"  ~"Non-Hispanic, Other",
-        vars  == "x.impraceNon-Hispanic, White"  ~"Non-Hispanic, White",
-        vars  == "sleptim1_cat2 Adquate sleep"  ~"Sleep (Adequate)",
-        vars  == "sleptim1_cat3 Excessive sleep"  ~"Sleep (Excessive)",
-        vars  == "alcday5_mod"  ~"# of drinks",
-        vars  == "smoke_modyes"  ~"Smoke Status",
-        vars  == "health_catyes"  ~"Health Status",
-        vars  == "exercise_catyes"  ~"Exercise",
+        vars  == "(Intercept)" ~ "Inter",
+        vars  == "age_l25-34"  ~ "Age (25-34)",
+        vars  == "age_l35-44"  ~ "Age (35-44)",
+        vars  == "age_l45-54"  ~ "Age (45-54)",
+        vars  == "age_l55-64"  ~ "Age (55-64)",
+        vars  == "age_l65+"  ~   "Age (65+)",
+        vars  == "sex1Male"  ~   "Sex (Male)",
+        vars  == "x.impraceNon-Hispanic, Black"  ~ "Non-Hispanic, Black",
+        vars  == "x.impraceNon-Hispanic, Other"  ~ "Non-Hispanic, Other",
+        vars  == "x.impraceNon-Hispanic, White"  ~ "Non-Hispanic, White",
+        vars  == "sleptim1_cat2 Adquate sleep"   ~ "Sleep (Adequate)",
+        vars  == "sleptim1_cat3 Excessive sleep" ~ "Sleep (Excessive)",
+        vars  == "alcday5_mod"      ~ "# of drinks",
+        vars  == "smoke_modyes"     ~ "Smoke Status",
+        vars  == "health_catyes"    ~ "Health Status",
+        vars  == "exercise_catyes"  ~ "Exercise",
         TRUE ~ NA_character_
       )
   )

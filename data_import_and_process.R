@@ -26,6 +26,7 @@ vars_of_interest = tolower(c(
   "EMPLOY1",
   "CHILDREN",
   "INCOME2",
+  "x.incomg",
   "WEIGHT2",
   "HEIGHT3",
   "SMOKE100",

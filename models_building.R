@@ -38,6 +38,7 @@ raw_df = raw_df %>% mutate(
 )
 raw_df$cancer = as.factor(raw_df$cancer)
 raw_df$educa = as.factor(raw_df$educa)
+raw_df$x.incomg = as.factor(raw_df$x.incomg)
 
 raw_df$cncrtyp1 %>% table()
 
@@ -52,14 +53,14 @@ colnames(raw_df)
 svy_obj_1 <- svydesign(id=~x.psu, weights = ~x.llcpwt, data = raw_df)
 svy_obj_2 <- svydesign(id=~x.psu, weights= ~x.llcpwt, strata = ~x.state , data=raw_df, nest=TRUE)
 
-glm_model_1 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + educa + alcday5_mod + smoke_mod, design = svy_obj_1, family = "binomial") 
+glm_model_1 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + educa + alcday5_mod + smoke_mod + x.incomg, design = svy_obj_1, family = "binomial") 
 glm_model_1 %>% summary()
 glm_model_1 %>% confint()
 
 glm_model_2 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcday5_mod + smoke_mod, design = svy_obj_1, family = "binomial") 
 glm_model_2 %>% summary()
 
-glm_model_3 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcday5_mod + smoke_mod + health_cat + exercise_cat, design = svy_obj_1, family = "binomial") 
+glm_model_3 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcday5_mod + smoke_mod + health_cover + exercise_cat + x.incomg , design = svy_obj_1, family = "binomial") 
 glm_model_3 %>% summary()
 glm_model_3 %>% confint()
 anova(glm_model_2,glm_model_3)

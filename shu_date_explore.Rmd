@@ -25,6 +25,10 @@ raw_df[factor_cols] <- lapply(raw_df[factor_cols], as.factor)
 
 colnames(raw_df)
 # md.pattern(raw_df)
+raw_df$sleptim1_cat %>% table()
+raw_df$sleptim1 %>% hist(xlim= c(0,24),ylim= c(0,20100)) 
+raw_df %>% filter(sleptim1 >20 & sleptim1 <= 24) %>% nrow()
+raw_df$age_l %>% table()
 ```
 
 Get subset of data for table 1 

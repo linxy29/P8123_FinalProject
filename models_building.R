@@ -39,8 +39,12 @@ raw_df = raw_df %>% mutate(
 raw_df$cancer = as.factor(raw_df$cancer)
 raw_df$educa = as.factor(raw_df$educa)
 raw_df$x.incomg = as.factor(raw_df$x.incomg)
-
+raw_df$x.incomg %>% table()
+raw_df$educa %>% table()
+raw_df$educa[raw_df$educa == 9] = NA
+raw_df$educa = factor(raw_df$educa)
 raw_df$cncrtyp1 %>% table()
+
 
 # raw_df$alcday5_mod %>% hist()
 # raw_df$educa %>% table()
@@ -65,6 +69,27 @@ glm_model_3 %>% summary()
 glm_model_3 %>% confint()
 anova(glm_model_2,glm_model_3)
 anova(glm_model_2,glm_model_1)
+
+glm_model_4 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcday5_mod + smoke_mod + health_cover + exercise_cat + x.incomg + educa , design = svy_obj_2, family = "binomial") 
+glm_model_4 %>% summary()
+
+confint_glm <- function(object, parm, level = 0.95, ...) {
+  coef = coef(summary(object)) %>% as.data.frame()
+  coef_CI = object %>% confint() %>% as.data.frame()
+  table = cbind(coef, coef_CI) %>% 
+    mutate(Exp.Est = round(exp(Estimate),4),
+           CIL = round(`2.5 %`,4),
+           CIU = round(`97.5 %`,4),
+           Std.Error = round(`Std. Error`,4),
+           Estimate = round(Estimate,4)) %>%
+    dplyr::select(Estimate, Exp.Est, Std.Error, CIL, CIU)
+  rownames(table) <- rownames(coef)
+  return(table)
+}
+confint_glm(glm_model_4) %>% knitr::kable()
+
+
+
 
 
 glm_model_3 %>% summary()

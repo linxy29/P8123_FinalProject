@@ -26,18 +26,22 @@ raw_df = raw_df %>% mutate(
       hlthpln1  == 2  ~"no",
       TRUE ~ NA_character_
     ),
-  cencer_type = 
+  edu_cat_mod = 
     case_when(
-      cncrtyp1 == 1  ~"Non-Hispanic, White",
-      cncrtyp1 == 2  ~"Non-Hispanic, Black",
-      cncrtyp1 == 5  ~"Hispanic",
-      TRUE ~ "Non-Hispanic, Other"
+      educa == 1  ~"  Less than HS",
+      educa == 2  ~"  Less than HS",
+      educa == 3  ~"  Less than HS",
+      educa == 4  ~" HS graduate",
+      educa == 5 ~" Some College",
+      educa == 6  ~"College Graduate",
+      TRUE ~ NA_character_
     )
 )
-
+raw_df$edu_cat_mod %>% table()
 raw_df$cancer = as.factor(raw_df$cancer)
 raw_df$educa = as.factor(raw_df$educa)
 raw_df$x.incomg = as.factor(raw_df$x.incomg)
+# remove education unknown
 raw_df$educa[raw_df$educa == 9] = NA
 raw_df$educa = factor(raw_df$educa)
 
@@ -45,7 +49,7 @@ raw_df$educa = factor(raw_df$educa)
 #### Model part 
 
 svy_obj_2 <- svydesign(id=~x.psu, weights= ~x.llcpwt, strata = ~x.state , data=raw_df, nest=TRUE)
-glm_model_4 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcday5_mod + smoke_mod + health_cover + exercise_cat + x.incomg + educa , design = svy_obj_2, family = "binomial") 
+glm_model_4 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcday5_mod + smoke_mod + health_cover + exercise_cat + x.incomg + edu_cat_mod , design = svy_obj_2, family = "binomial") 
 
 
 confint_glm <- function(object, parm, level = 0.95, ...) {
@@ -93,11 +97,14 @@ glm_result_1 =
         rowname  == "x.incomg4"  ~ "$35,000 ~ $50,000",
         rowname  == "x.incomg5"  ~ "More than $50,000 ",
         rowname  == "x.incomg9"  ~ "unknown",
-        rowname  == "educa2"  ~ "Elementary",
-        rowname  == "educa3"  ~ "Some high school",
-        rowname  == "educa4"  ~ "High school graduate",
-        rowname  == "educa5"  ~ "Some college",
-        rowname  == "educa6"  ~ "College graduate",
+        # rowname  == "educa2"  ~ "Elementary",
+        # rowname  == "educa3"  ~ "Some high school",
+        # rowname  == "educa4"  ~ "High school graduate",
+        # rowname  == "educa5"  ~ "Some college",
+        # rowname  == "educa6"  ~ "College graduate",
+        rowname  == "edu_cat_mod HS graduate"  ~ "High School Graduate",
+        rowname  == "edu_cat_mod Some College"  ~ "Some College",
+        rowname  == "edu_cat_modCollege Graduate"  ~ "College Graduate",
         TRUE ~ NA_character_
       )
   ) %>%
@@ -106,4 +113,4 @@ glm_result_1 =
   column_to_rownames(var = "rownames_new")
 
 #### print result 
-glm_result_1%>% knitr::kable()
+glm_result_1 %>% knitr::kable()

@@ -35,7 +35,8 @@ raw_df = raw_df %>% mutate(
       educa == 5 ~" Some College",
       educa == 6  ~"College Graduate",
       TRUE ~ NA_character_
-    )
+    ),
+  alcweek5_mod = alcday5_mod/7   # change data in to the "week" unit
 )
 raw_df$edu_cat_mod %>% table()
 raw_df$cancer = as.factor(raw_df$cancer)
@@ -49,7 +50,7 @@ raw_df$educa = factor(raw_df$educa)
 #### Model part 
 
 svy_obj_2 <- svydesign(id=~x.psu, weights= ~x.llcpwt, strata = ~x.state , data=raw_df, nest=TRUE)
-glm_model_4 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcday5_mod + smoke_mod + health_cover + exercise_cat + x.incomg + edu_cat_mod , design = svy_obj_2, family = "binomial") 
+glm_model_4 = svyglm(cancer ~ age_l + sex1 +  x.imprace + sleptim1_cat + alcweek5_mod + smoke_mod + health_cover + exercise_cat + x.incomg + edu_cat_mod , design = svy_obj_2, family = "binomial") 
 
 
 confint_glm <- function(object, parm, level = 0.95, ...) {
@@ -88,7 +89,7 @@ glm_result_1 =
         rowname  == "x.impraceNon-Hispanic, White"  ~ "Non-Hispanic, White",
         rowname  == "sleptim1_cat2 Adquate sleep"   ~ "Sleep (Adequate)",
         rowname  == "sleptim1_cat3 Excessive sleep" ~ "Sleep (Excessive)",
-        rowname  == "alcday5_mod"      ~ "Days of drinks",
+        rowname  == "alcweek5_mod"      ~ "Weeks of drinks",
         rowname  == "smoke_modyes"     ~ "Smoke Status",
         rowname  == "health_coveryes"    ~ "Health Coverage",
         rowname  == "exercise_catyes"    ~ "Exercise Status",

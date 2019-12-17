@@ -266,6 +266,58 @@ ggarrange( plot_gender,plot_heath, df_caner_race_plot, df_caner_age,
 ggarrange(df_caner_healthcare ,df_caner_exe,df_caner_alcohol ,df_caner_smoke,       
           labels = c("Health Care", "Exercise","Alcohol","Smoke"))
 
+##### Code for table 1 
+raw_df = read_csv("data/table_1_data.csv")
+
+
+factor_cols <- c("x.age.g", "x.state", "x.imprace", "genhlth","hlthpln1","educa" ,"sex1","chcocncr", "sleptim1_cat")
+raw_df[factor_cols] <- lapply(raw_df[factor_cols], as.factor)  
+
+
+# md.pattern(raw_df)
+raw_df$sleptim1_cat %>% table()
+raw_df$sleptim1 %>% hist(xlim= c(0,24),ylim= c(0,20100)) 
+raw_df %>% filter(sleptim1 >20 & sleptim1 <= 24) %>% nrow()
+raw_df$age_l %>% table()
+
+
+raw_df = raw_df %>%
+  filter(sleptim1_cat=="1 Insufficient sleep")
+
+get_freq <- function(raw_data, svy_data, var_name) {
+  # Raw count & percentage
+  raw_count = raw_data[var_name] %>% table() %>% as.data.frame() %>% rename("raw_count" = Freq)
+  raw_pct = raw_data[var_name] %>% table() %>% prop.table() %>% as.data.frame() %>% rename("raw_pct" = Freq)
+  raw_count_pct = left_join(raw_count, raw_pct, by = ".") %>% select(-".")
+  
+  # weighted count
+  wt_count =
+    svytotal(~ get(var_name), svy_data, na.rm = TRUE) %>% as.data.frame() %>% rename("wt_count"=total,"wt_count_se"=SE)
+  # weighted percentage
+  wt_mean = 
+    svymean(~ get(var_name), svy_data, na.rm = TRUE) %>% as.data.frame() %>% rename("wt_mean" = mean, "wt_mean_se" = SE)
+  
+  # Combined result 
+  frequency_combined = bind_cols(raw_count_pct, wt_count, wt_mean)
+  
+  # change to percentage
+  percent_cols <- c("raw_pct", "wt_mean")
+  frequency_combined[percent_cols] =  
+    lapply(frequency_combined[percent_cols], scales::percent)
+  return(frequency_combined)
+}
+
+svy_tbl_1 <- svydesign(id=~x.psu, weights= ~x.llcpwt, strata = ~x.state , data=raw_df, nest=TRUE)
+freq_race = get_freq(raw_df, svy_tbl_1, "x.imprace")
+freq_age = get_freq(raw_df, svy_tbl_1, "x.age.g")
+freq_sex = get_freq(raw_df, svy_tbl_1, "sex1")
+freq_edu = get_freq(raw_df, svy_tbl_1, "educa")
+freq_genhlth = get_freq(raw_df, svy_tbl_1, "genhlth")
+freq_cancer = get_freq(raw_df, svy_tbl_1, "chcocncr")
+freq_slepcat = get_freq(raw_df, svy_tbl_1, "sleptim1_cat")
+
+
+
 #### generate data for table 2 (the glm result)
 confint_glm <- function(object, parm, level = 0.95, ...) {
   coef = coef(summary(object)) %>% as.data.frame()

@@ -119,5 +119,13 @@ cancer_by_states$x.state = rownames(sleep_by_states) %>% as.numeric()
 ```
 
 
+$$
+Weight_{Design } = Weight_{Stratum } \times \frac{1}{Number\ of\ Phones\ Within\ Household} \times Numer\  of\ Adults
+$$
+
+$$Weight_{Stratum }$$ 
+Is calculated with 1: Number of available records, 2: Geographic strata  3: Density of phone numbners in given block 
+
+
 
 
